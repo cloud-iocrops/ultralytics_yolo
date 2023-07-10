@@ -18,6 +18,7 @@ from PIL import Image
 from ultralytics.yolo.data.utils import IMG_FORMATS, VID_FORMATS
 from ultralytics.yolo.utils import LOGGER, ROOT, is_colab, is_kaggle, ops
 from ultralytics.yolo.utils.checks import check_requirements
+from ultralytics.yolo.data.dataloaders.zed_loader import SVOReader
 
 
 @dataclass
@@ -26,6 +27,7 @@ class SourceTypes:
     screenshot: bool = False
     from_img: bool = False
     tensor: bool = False
+    svo: bool = False
 
 
 class LoadStreams:
@@ -251,6 +253,55 @@ class LoadImages:
         return self.nf  # number of files
 
 
+class LoadSVO:
+    def __init__(self, path, imgsz=640, vid_stride=1):
+        self.svo = SVOReader(path)
+        self.path = path
+        self.file_name = Path(path).name
+        self.vid_stride = vid_stride  # video frame-rate stride
+        self.imgsz = imgsz
+        self.count = 0
+        self.mode = 'image'
+        self.cap = None
+        self.current_frame = -1 * int(self.vid_stride)
+        self.total_num_frames = int(self.svo.get_num_frames())
+        self.nf = 1
+        self.bs = 1
+        
+        self.depth_path = Path(self.path).parents[1].joinpath('depth')
+        self.depth_path.mkdir(parents=True, exist_ok=True)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        self.current_frame += self.vid_stride
+        if self.current_frame >= self.total_num_frames:
+            raise StopIteration
+        
+        self.svo.set_frame(self.current_frame)
+        im0 = self.svo.get_img()
+        s = f'SVO {self.current_frame}/{self.total_num_frames} {self.file_name}: '
+
+        return [self.path], [im0], self.cap, s
+
+    def _new_video(self, path):
+        pass
+
+    def _cv2_rotate(self, im):
+        """Rotate a cv2 video manually."""
+        if self.orientation == 0:
+            return cv2.rotate(im, cv2.ROTATE_90_CLOCKWISE)
+        elif self.orientation == 180:
+            return cv2.rotate(im, cv2.ROTATE_90_COUNTERCLOCKWISE)
+        elif self.orientation == 90:
+            return cv2.rotate(im, cv2.ROTATE_180)
+        return im
+
+    def __len__(self):
+        return 1  # number of files
+
+
 class LoadPilAndNumpy:
 
     def __init__(self, im0, imgsz=640):
@@ -354,7 +405,7 @@ def autocast_list(source):
     return files
 
 
-LOADERS = [LoadStreams, LoadPilAndNumpy, LoadImages, LoadScreenshots]
+LOADERS = [LoadStreams, LoadPilAndNumpy, LoadImages, LoadSVO, LoadScreenshots]
 
 
 def get_best_youtube_url(url, use_pafy=True):
@@ -386,7 +437,12 @@ def get_best_youtube_url(url, use_pafy=True):
 
 
 if __name__ == '__main__':
-    img = cv2.imread(str(ROOT / 'assets/bus.jpg'))
-    dataset = LoadPilAndNumpy(im0=img)
+    # img = cv2.imread(str(ROOT / 'assets/bus.jpg'))
+    # dataset = LoadPilAndNumpy(im0=img)
+    # for d in dataset:
+    #     print(d[0])
+    
+    svo = '/data/ioCrops/pepper/fruit/20230602/raw/20230602_A_220_R_F.svo'
+    dataset = LoadSVO(path=svo, vid_stride=2)
     for d in dataset:
-        print(d[0])
+        print(d[-1])
