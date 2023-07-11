@@ -53,7 +53,7 @@ class SVOReader:
             sys.exit(-1)
 
         self.total_num_frames = self.zed.get_svo_number_of_frames()
-        logging.info("SVO setup complete")
+        logging.debug("SVO setup complete")
 
     def get_num_frames(self):
         return self.total_num_frames

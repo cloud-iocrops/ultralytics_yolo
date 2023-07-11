@@ -9,7 +9,7 @@ import torch
 from PIL import Image
 from torch.utils.data import dataloader, distributed
 
-from ultralytics.yolo.data.dataloaders.stream_loaders import (LOADERS, LoadImages, LoadPilAndNumpy, LoadScreenshots,
+from ultralytics.yolo.data.dataloaders.stream_loaders import (LOADERS, LoadImages, LoadPilAndNumpy, LoadScreenshots, LoadSVO,
                                                               LoadStreams, LoadTensor, SourceTypes, autocast_list)
 from ultralytics.yolo.data.utils import IMG_FORMATS, VID_FORMATS
 from ultralytics.yolo.utils.checks import check_file
@@ -116,10 +116,13 @@ def check_source(source):
         source = str(source)
         is_file = Path(source).suffix[1:] in (IMG_FORMATS + VID_FORMATS)
         is_url = source.lower().startswith(('https://', 'http://', 'rtsp://', 'rtmp://'))
+        is_svo = source.endswith('.svo')
         webcam = source.isnumeric() or source.endswith('.streams') or (is_url and not is_file)
         screenshot = source.lower() == 'screen'
         if is_url and is_file:
             source = check_file(source)  # download
+        if is_svo:
+            svo = True
     elif isinstance(source, tuple(LOADERS)):
         in_memory = True
     elif isinstance(source, (list, tuple)):
@@ -132,7 +135,7 @@ def check_source(source):
     else:
         raise TypeError('Unsupported image type. For supported types see https://docs.ultralytics.com/modes/predict')
 
-    return source, webcam, screenshot, from_img, in_memory, tensor
+    return source, webcam, screenshot, from_img, in_memory, tensor, svo
 
 
 def load_inference_source(source=None, imgsz=640, vid_stride=1):
@@ -147,8 +150,8 @@ def load_inference_source(source=None, imgsz=640, vid_stride=1):
     Returns:
         dataset (Dataset): A dataset object for the specified input source.
     """
-    source, webcam, screenshot, from_img, in_memory, tensor = check_source(source)
-    source_type = source.source_type if in_memory else SourceTypes(webcam, screenshot, from_img, tensor)
+    source, webcam, screenshot, from_img, in_memory, tensor, svo = check_source(source)
+    source_type = source.source_type if in_memory else SourceTypes(webcam, screenshot, from_img, tensor, svo)
 
     # Dataloader
     if tensor:
@@ -161,6 +164,8 @@ def load_inference_source(source=None, imgsz=640, vid_stride=1):
         dataset = LoadScreenshots(source, imgsz=imgsz)
     elif from_img:
         dataset = LoadPilAndNumpy(source, imgsz=imgsz)
+    elif svo:
+        dataset = LoadSVO(source, imgsz=imgsz, vid_stride=vid_stride)
     else:
         dataset = LoadImages(source, imgsz=imgsz, vid_stride=vid_stride)
 
