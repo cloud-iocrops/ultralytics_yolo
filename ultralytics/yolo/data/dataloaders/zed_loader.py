@@ -33,7 +33,6 @@ class SVOReader:
 
         self.init_params.set_from_svo_file(self.filepath)
         self.resolution = sl.get_resolution(self.init_params.camera_resolution)
-        self.init_params.camera_image_flip = sl.FLIP_MODE.OFF
 
         # Open the camera
         status = self.zed.open(self.init_params)
