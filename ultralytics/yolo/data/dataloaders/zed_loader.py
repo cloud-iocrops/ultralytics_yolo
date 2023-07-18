@@ -63,17 +63,25 @@ class SVOReader:
         if self.total_num_frames < frame:
             raise RuntimeError("Frame number exceeds the total number of frames")
         
-        for _ in range(int(self.total_num_frames) + 1):
-            self.frame += 1
-            state = self.zed.grab()
-            if self.frame == frame:
-                if state == sl.ERROR_CODE.SUCCESS:
-                    self.mapping_state = self.zed.get_spatial_mapping_state()
-                    logging.debug(f"Spatial mapping state: {repr(self.mapping_state)}")
-                    return
-                logging.warning(f"Failed to grab frame {self.frame} (state: {repr(state)})")
-
+        self.zed.set_svo_position(frame)
+        state = self.zed.grab()
+        if state == sl.ERROR_CODE.SUCCESS :
+            self.mapping_state = self.zed.get_spatial_mapping_state()
+            logging.debug(f"Spatial mapping state: {repr(self.mapping_state)}")
+            return
         raise RuntimeError("Failed to set frame")
+        
+        # for _ in range(int(self.total_num_frames) + 1):
+        #     self.frame += 1
+        #     state = self.zed.grab()
+        #     if self.frame == frame:
+        #         if state == sl.ERROR_CODE.SUCCESS:
+        #             self.mapping_state = self.zed.get_spatial_mapping_state()
+        #             logging.debug(f"Spatial mapping state: {repr(self.mapping_state)}")
+        #             return
+        #         logging.warning(f"Failed to grab frame {self.frame} (state: {repr(state)})")
+
+        # raise RuntimeError("Failed to set frame")
 
     def get_img(self):
         logging.debug(f"Images captured: {self.frame}")
