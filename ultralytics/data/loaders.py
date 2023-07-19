@@ -298,10 +298,10 @@ class LoadSVO:
             raise StopIteration
         
         self.svo.set_frame(self.current_frame)
-        img = self.svo.get_img()
+        im0 = self.svo.get_img()
         s = f'SVO {self.current_frame}/{self.total_num_frames} {self.file_name}: '
 
-        return [self.path], [img], self.cap, s
+        return [self.path], [im0], self.cap, s
 
     def _new_video(self, path):
         pass
@@ -318,9 +318,6 @@ class LoadSVO:
 
     def __len__(self):
         return 1  # number of files
-    
-    def close(self):
-        self.svo.close()
 
 
 class LoadPilAndNumpy:
