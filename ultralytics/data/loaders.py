@@ -302,6 +302,9 @@ class LoadSVO:
     
     def __len__(self):
         return 1  # number of files
+    
+    def close(self):
+        self.svo.close()
 
 
 class LoadPilAndNumpy:
