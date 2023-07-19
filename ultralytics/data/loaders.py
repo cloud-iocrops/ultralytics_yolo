@@ -15,16 +15,10 @@ import requests
 import torch
 from PIL import Image
 
-<<<<<<< HEAD:ultralytics/yolo/data/dataloaders/stream_loaders.py
-from ultralytics.yolo.data.utils import IMG_FORMATS, VID_FORMATS
-from ultralytics.yolo.utils import LOGGER, ROOT, is_colab, is_kaggle, ops
-from ultralytics.yolo.utils.checks import check_requirements
-from ultralytics.yolo.data.dataloaders.zed_loader import SVOReader
-=======
 from ultralytics.data.utils import IMG_FORMATS, VID_FORMATS
 from ultralytics.utils import LOGGER, ROOT, is_colab, is_kaggle, ops
 from ultralytics.utils.checks import check_requirements
->>>>>>> 85f191fbc710eb41d6f5ae46354939f3e9c74b09:ultralytics/data/loaders.py
+from ultralytics.data.zed_loader import SVOReader
 
 
 @dataclass
@@ -305,17 +299,7 @@ class LoadSVO:
 
     def _new_video(self, path):
         pass
-
-    def _cv2_rotate(self, im):
-        """Rotate a cv2 video manually."""
-        if self.orientation == 0:
-            return cv2.rotate(im, cv2.ROTATE_90_CLOCKWISE)
-        elif self.orientation == 180:
-            return cv2.rotate(im, cv2.ROTATE_90_COUNTERCLOCKWISE)
-        elif self.orientation == 90:
-            return cv2.rotate(im, cv2.ROTATE_180)
-        return im
-
+    
     def __len__(self):
         return 1  # number of files
 

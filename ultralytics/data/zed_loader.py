@@ -6,25 +6,62 @@ import pyzed.sl as sl
 from pathlib import Path
 
 
+class LoadSVO:
+    def __init__(self, path, imgsz=640, vid_stride=1):
+        self.svo = SVOReader(path)
+        self.path = path
+        self.file_name = Path(path).name
+        self.vid_stride = vid_stride  # video frame-rate stride
+        self.imgsz = imgsz
+        self.count = 0
+        self.mode = 'image'
+        self.cap = None
+        self.current_frame = -1 * int(self.vid_stride)
+        self.total_num_frames = int(self.svo.get_num_frames())
+        self.nf = 1
+        self.bs = 1
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        self.current_frame += self.vid_stride
+        if self.current_frame >= self.total_num_frames:
+            raise StopIteration
+        
+        self.svo.set_frame(self.current_frame)
+        im0 = self.svo.get_img()
+        s = f'SVO {self.current_frame}/{self.total_num_frames} {self.file_name}: '
+
+        return [self.path], [im0], self.cap, s
+
+    def _new_video(self, path):
+        pass
+    
+    def __len__(self):
+        return 1  # number of files
+
+
 class SVOReader:
     def __init__(self, path):
         self.filepath = path
         Path(self.filepath).exists() or sys.exit(f"File not found: {self.filepath}")
-        
+
+        self.rotation = True if 'fruit' in str(self.filepath) else False
         self.init_params = None
         self.resolution = None
         self.frame = -1
         self.total_num_frames = 0
-        
+
         self.zed = sl.Camera()
         self.left_image = sl.Mat()
         self.depth_map = sl.Mat()
         self.pose = sl.Pose()
-        
+
         self.setup()
-        
+
     def setup(self):
-        
+
         self.init_params = sl.InitParameters(camera_resolution=sl.RESOLUTION.HD2K,
                                             depth_mode=sl.DEPTH_MODE.NEURAL,
                                             coordinate_units=sl.UNIT.MILLIMETER,
@@ -57,11 +94,11 @@ class SVOReader:
 
     def get_num_frames(self):
         return self.total_num_frames
-    
+
     def set_frame(self, frame):
         if self.total_num_frames < frame:
             raise RuntimeError("Frame number exceeds the total number of frames")
-        
+
         self.zed.set_svo_position(frame)
         state = self.zed.grab()
         if state == sl.ERROR_CODE.SUCCESS :
@@ -69,46 +106,38 @@ class SVOReader:
             logging.debug(f"Spatial mapping state: {repr(self.mapping_state)}")
             return
         raise RuntimeError("Failed to set frame")
-        
-        # for _ in range(int(self.total_num_frames) + 1):
-        #     self.frame += 1
-        #     state = self.zed.grab()
-        #     if self.frame == frame:
-        #         if state == sl.ERROR_CODE.SUCCESS:
-        #             self.mapping_state = self.zed.get_spatial_mapping_state()
-        #             logging.debug(f"Spatial mapping state: {repr(self.mapping_state)}")
-        #             return
-        #         logging.warning(f"Failed to grab frame {self.frame} (state: {repr(state)})")
-
-        # raise RuntimeError("Failed to set frame")
 
     def get_img(self):
         logging.debug(f"Images captured: {self.frame}")
         self.zed.retrieve_image(self.left_image, sl.VIEW.LEFT) # Get the rectified left image
         img = self.left_image.get_data()
         img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGB)
+        if self.rotation:
+            img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
         return img
-    
+
     def get_depth(self):
         logging.debug(f"Depth captured: {self.frame}")
         self.zed.retrieve_measure(self.depth_map, sl.MEASURE.DEPTH)
         depth = self.depth_map.get_data()
-        
+
         logging.debug(f"Depth shape: {depth.shape}")
         logging.debug(f"# of NaN: {np.isnan(depth).sum()}")
         logging.debug(f"# of Inf: {np.isinf(depth).sum()}")
-        
+
         depth[np.isnan(depth)] = -1
         depth[np.isinf(depth)] = -1
         depth = depth.round(0).astype('uint16')
         depth = np.clip(depth, 0, 1e4)
+        if self.rotation:
+            depth = np.rot90(depth)
         return depth
-    
+
     def get_calibration_params(self):
         logging.debug(f"Calibration parameters: {self.frame}")
         left_cam_info = self.zed.get_camera_information().calibration_parameters.left_cam
         return np.array([left_cam_info.fx, left_cam_info.fy, left_cam_info.cx, left_cam_info.cy])
-    
+
     def get_pose(self):
         logging.debug(f"Pose captured: {self.frame}")
         status = self.zed.get_position(self.pose)
@@ -123,16 +152,12 @@ class SVOReader:
             return angles
         else:    
             raise NotImplementedError("Only RIGHT_HANDED_Y_UP is supported")
-    
+
     def get_info(self):
         logging.debug(f"Information: {self.frame}")
         cal_params = self.get_calibration_params()
         angles = self.get_pose()
         return {'cal_params': cal_params, 'angle': angles}
-    
-    def save(self, img, depth, pcd):
-        img.save(f'./log/image/{self.frame:04d}.png')
-        np.save(f"./log/depth/{self.frame:04d}.npy", depth)
 
     def close(self):
         self.zed.disable_spatial_mapping()

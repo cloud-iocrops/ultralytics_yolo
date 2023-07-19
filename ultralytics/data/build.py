@@ -9,18 +9,11 @@ import torch
 from PIL import Image
 from torch.utils.data import dataloader, distributed
 
-<<<<<<< HEAD:ultralytics/yolo/data/build.py
-from ultralytics.yolo.data.dataloaders.stream_loaders import (LOADERS, LoadImages, LoadPilAndNumpy, LoadScreenshots, LoadSVO,
-                                                              LoadStreams, LoadTensor, SourceTypes, autocast_list)
-from ultralytics.yolo.data.utils import IMG_FORMATS, VID_FORMATS
-from ultralytics.yolo.utils.checks import check_file
-=======
-from ultralytics.data.loaders import (LOADERS, LoadImages, LoadPilAndNumpy, LoadScreenshots, LoadStreams, LoadTensor,
+from ultralytics.data.loaders import (LOADERS, LoadImages, LoadPilAndNumpy, LoadScreenshots, LoadStreams, LoadTensor, LoadSVO,
                                       SourceTypes, autocast_list)
 from ultralytics.data.utils import IMG_FORMATS, VID_FORMATS
 from ultralytics.utils import RANK, colorstr
 from ultralytics.utils.checks import check_file
->>>>>>> 85f191fbc710eb41d6f5ae46354939f3e9c74b09:ultralytics/data/build.py
 
 from .dataset import YOLODataset
 from .utils import PIN_MEMORY
