@@ -11,6 +11,7 @@ class SVOReader:
         self.filepath = path
         Path(self.filepath).exists() or sys.exit(f"File not found: {self.filepath}")
         
+        self.rotation = True if 'fruit' in self.filepath else False
         self.init_params = None
         self.resolution = None
         self.frame = -1
@@ -87,6 +88,8 @@ class SVOReader:
         self.zed.retrieve_image(self.left_image, sl.VIEW.LEFT) # Get the rectified left image
         img = self.left_image.get_data()
         img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGB)
+        if self.rotation:
+            img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
         return img
     
     def get_depth(self):
@@ -102,6 +105,8 @@ class SVOReader:
         depth[np.isinf(depth)] = -1
         depth = depth.round(0).astype('uint16')
         depth = np.clip(depth, 0, 1e4)
+        if self.rotation:
+            depth = np.rot90(depth)
         return depth
     
     def get_calibration_params(self):
