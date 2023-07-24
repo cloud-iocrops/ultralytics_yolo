@@ -6,42 +6,6 @@ import pyzed.sl as sl
 from pathlib import Path
 
 
-class LoadSVO:
-    def __init__(self, path, imgsz=640, vid_stride=1):
-        self.svo = SVOReader(path)
-        self.path = path
-        self.file_name = Path(path).name
-        self.vid_stride = vid_stride  # video frame-rate stride
-        self.imgsz = imgsz
-        self.count = 0
-        self.mode = 'image'
-        self.cap = None
-        self.current_frame = -1 * int(self.vid_stride)
-        self.total_num_frames = int(self.svo.get_num_frames())
-        self.nf = 1
-        self.bs = 1
-
-    def __iter__(self):
-        return self
-
-    def __next__(self):
-        self.current_frame += self.vid_stride
-        if self.current_frame >= self.total_num_frames:
-            raise StopIteration
-        
-        self.svo.set_frame(self.current_frame)
-        im0 = self.svo.get_img()
-        s = f'SVO {self.current_frame}/{self.total_num_frames} {self.file_name}: '
-
-        return [self.path], [im0], self.cap, s
-
-    def _new_video(self, path):
-        pass
-    
-    def __len__(self):
-        return 1  # number of files
-
-
 class SVOReader:
     def __init__(self, path):
         self.filepath = path

@@ -279,16 +279,13 @@ class LoadSVO:
         self.total_num_frames = int(self.svo.get_num_frames())
         self.nf = 1
         self.bs = 1
-        
-        self.depth_path = Path(self.path).parents[1].joinpath('depth')
-        self.depth_path.mkdir(parents=True, exist_ok=True)
 
     def __iter__(self):
         return self
 
     def __next__(self):
         self.current_frame += self.vid_stride
-        if self.current_frame >= self.total_num_frames:
+        if self.current_frame >= self.total_num_frames - 1:
             raise StopIteration
         
         self.svo.set_frame(self.current_frame)
