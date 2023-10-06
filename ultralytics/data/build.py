@@ -111,7 +111,7 @@ def build_dataloader(dataset, batch, workers, shuffle=True, rank=-1):
 
 def check_source(source):
     """Check source type and return corresponding flag values."""
-    webcam, screenshot, from_img, in_memory, tensor = False, False, False, False, False
+    webcam, screenshot, from_img, in_memory, tensor, svo = False, False, False, False, False, False
     if isinstance(source, (str, int, Path)):  # int for local usb camera
         source = str(source)
         is_file = Path(source).suffix[1:] in (IMG_FORMATS + VID_FORMATS)
