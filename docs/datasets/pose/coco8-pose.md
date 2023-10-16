@@ -8,11 +8,7 @@ keywords: Ultralytics, YOLOv8, pose detection, COCO8-Pose dataset, dataset, mode
 
 ## Introduction
 
-[Ultralytics](https://ultralytics.com) COCO8-Pose is a small, but versatile pose detection dataset composed of the first
-8 images of the COCO train 2017 set, 4 for training and 4 for validation. This dataset is ideal for testing and
-debugging object detection models, or for experimenting with new detection approaches. With 8 images, it is small enough
-to be easily manageable, yet diverse enough to test training pipelines for errors and act as a sanity check before
-training larger datasets.
+[Ultralytics](https://ultralytics.com) COCO8-Pose is a small, but versatile pose detection dataset composed of the first 8 images of the COCO train 2017 set, 4 for training and 4 for validation. This dataset is ideal for testing and debugging object detection models, or for experimenting with new detection approaches. With 8 images, it is small enough to be easily manageable, yet diverse enough to test training pipelines for errors and act as a sanity check before training larger datasets.
 
 This dataset is intended for use with Ultralytics [HUB](https://hub.ultralytics.com)
 and [YOLOv8](https://github.com/ultralytics/ultralytics).
@@ -37,12 +33,12 @@ To train a YOLOv8n-pose model on the COCO8-Pose dataset for 100 epochs with an i
 
         ```python
         from ultralytics import YOLO
-        
+
         # Load a model
         model = YOLO('yolov8n-pose.pt')  # load a pretrained model (recommended for training)
-        
+
         # Train the model
-        model.train(data='coco8-pose.yaml', epochs=100, imgsz=640)
+        results = model.train(data='coco8-pose.yaml', epochs=100, imgsz=640)
         ```
 
     === "CLI"
@@ -66,15 +62,19 @@ The example showcases the variety and complexity of the images in the COCO8-Pose
 
 If you use the COCO dataset in your research or development work, please cite the following paper:
 
-```bibtex
-@misc{lin2015microsoft,
-      title={Microsoft COCO: Common Objects in Context}, 
-      author={Tsung-Yi Lin and Michael Maire and Serge Belongie and Lubomir Bourdev and Ross Girshick and James Hays and Pietro Perona and Deva Ramanan and C. Lawrence Zitnick and Piotr Dollár},
-      year={2015},
-      eprint={1405.0312},
-      archivePrefix={arXiv},
-      primaryClass={cs.CV}
-}
-```
+!!! note ""
+
+    === "BibTeX"
+
+        ```bibtex
+        @misc{lin2015microsoft,
+              title={Microsoft COCO: Common Objects in Context},
+              author={Tsung-Yi Lin and Michael Maire and Serge Belongie and Lubomir Bourdev and Ross Girshick and James Hays and Pietro Perona and Deva Ramanan and C. Lawrence Zitnick and Piotr Dollár},
+              year={2015},
+              eprint={1405.0312},
+              archivePrefix={arXiv},
+              primaryClass={cs.CV}
+        }
+        ```
 
 We would like to acknowledge the COCO Consortium for creating and maintaining this valuable resource for the computer vision community. For more information about the COCO dataset and its creators, visit the [COCO dataset website](https://cocodataset.org/#home).

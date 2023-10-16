@@ -5,15 +5,16 @@ import numpy as np
 import onnxruntime as ort
 import torch
 
-from ultralytics.utils import ROOT, yaml_load
+from ultralytics.utils import ASSETS, yaml_load
 from ultralytics.utils.checks import check_requirements, check_yaml
 
 
-class Yolov8:
+class YOLOv8:
+    """YOLOv8 object detection model class for handling inference and visualization."""
 
     def __init__(self, onnx_model, input_image, confidence_thres, iou_thres):
         """
-        Initializes an instance of the Yolov8 class.
+        Initializes an instance of the YOLOv8 class.
 
         Args:
             onnx_model: Path to the ONNX model.
@@ -198,17 +199,14 @@ class Yolov8:
         outputs = session.run(None, {model_inputs[0].name: img_data})
 
         # Perform post-processing on the outputs to obtain output image.
-        output_img = self.postprocess(self.img, outputs)
-
-        # Return the resulting output image
-        return output_img
+        return self.postprocess(self.img, outputs)  # output image
 
 
 if __name__ == '__main__':
     # Create an argument parser to handle command-line arguments
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', type=str, default='yolov8n.onnx', help='Input your ONNX model.')
-    parser.add_argument('--img', type=str, default=str(ROOT / 'assets/bus.jpg'), help='Path to input image.')
+    parser.add_argument('--img', type=str, default=str(ASSETS / 'bus.jpg'), help='Path to input image.')
     parser.add_argument('--conf-thres', type=float, default=0.5, help='Confidence threshold')
     parser.add_argument('--iou-thres', type=float, default=0.5, help='NMS IoU threshold')
     args = parser.parse_args()
@@ -216,8 +214,8 @@ if __name__ == '__main__':
     # Check the requirements and select the appropriate backend (CPU or GPU)
     check_requirements('onnxruntime-gpu' if torch.cuda.is_available() else 'onnxruntime')
 
-    # Create an instance of the Yolov8 class with the specified arguments
-    detection = Yolov8(args.model, args.img, args.conf_thres, args.iou_thres)
+    # Create an instance of the YOLOv8 class with the specified arguments
+    detection = YOLOv8(args.model, args.img, args.conf_thres, args.iou_thres)
 
     # Perform object detection and obtain the output image
     output_image = detection.main()

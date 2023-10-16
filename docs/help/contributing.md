@@ -6,7 +6,7 @@ keywords: Ultralytics, YOLO, open-source, contribute, pull request, bug report, 
 
 # Contributing to Ultralytics Open-Source YOLO Repositories
 
-First of all, thank you for your interest in contributing to Ultralytics open-source YOLO repositories! Your contributions will help improve the project and benefit the community. This document provides guidelines and best practices for contributing to Ultralytics YOLO repositories.
+First of all, thank you for your interest in contributing to Ultralytics open-source YOLO repositories! Your contributions will help improve the project and benefit the community. This document provides guidelines and best practices to get you started.
 
 ## Table of Contents
 
@@ -52,22 +52,23 @@ When adding new functions or classes, please include a [Google-style docstring](
 Example Google-style docstring:
 
 ```python
-def example_function(arg1: int, arg2: str) -> bool:
-    """Example function that demonstrates Google-style docstrings.
+def example_function(arg1: int, arg2: int) -> bool:
+    """
+    Example function that demonstrates Google-style docstrings.
 
     Args:
         arg1 (int): The first argument.
-        arg2 (str): The second argument.
+        arg2 (int): The second argument.
 
     Returns:
-        bool: True if successful, False otherwise.
+        (bool): True if successful, False otherwise.
 
-    Raises:
-        ValueError: If `arg1` is negative or `arg2` is empty.
+    Examples:
+        >>> result = example_function(1, 2)  # returns False
     """
-    if arg1 < 0 or not arg2:
-        raise ValueError("Invalid input values")
-    return True
+    if arg1 == arg2:
+        return True
+    return False
 ```
 
 ### GitHub Actions CI Tests

@@ -6,9 +6,7 @@ keywords: Ultralytics, YOLO, callbacks guide, training callback, validation call
 
 ## Callbacks
 
-Ultralytics framework supports callbacks as entry points in strategic stages of train, val, export, and predict modes.
-Each callback accepts a `Trainer`, `Validator`, or `Predictor` object depending on the operation type. All properties of
-these objects can be found in Reference section of the docs.
+Ultralytics framework supports callbacks as entry points in strategic stages of train, val, export, and predict modes. Each callback accepts a `Trainer`, `Validator`, or `Predictor` object depending on the operation type. All properties of these objects can be found in Reference section of the docs.
 
 ## Examples
 
@@ -20,10 +18,10 @@ In this example, we want to return the original frame with each result object. H
 def on_predict_batch_end(predictor):
     # Retrieve the batch data
     _, im0s, _, _ = predictor.batch
-    
+
     # Ensure that im0s is a list
     im0s = im0s if isinstance(im0s, list) else [im0s]
-    
+
     # Combine the prediction results with the corresponding frames
     predictor.results = zip(predictor.results, im0s)
 
