@@ -75,7 +75,7 @@ class SVOReader:
         logging.debug(f"Images captured: {self.frame}")
         self.zed.retrieve_image(self.left_image, sl.VIEW.LEFT) # Get the rectified left image
         img = self.left_image.get_data()
-        img = cv2.cvtColor(img, cv2.COLOR_BGRA2RGB)
+        img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
         if self.rotation:
             img = cv2.rotate(img, cv2.ROTATE_90_COUNTERCLOCKWISE)
         return img
