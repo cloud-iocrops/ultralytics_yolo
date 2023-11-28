@@ -7,11 +7,12 @@ from pathlib import Path
 
 
 class SVOReader:
-    def __init__(self, path):
-        self.filepath = path
-        Path(self.filepath).exists() or sys.exit(f"File not found: {self.filepath}")
+    def __init__(self, path: dict):
+        self.filepath = path['source']
+        plant_type = path['plant_type']
 
-        self.rotation = True if 'fruit' in str(self.filepath) else False
+        Path(self.filepath).exists() or sys.exit(f"File not found: {self.filepath}")
+        self.rotation = True if 'berry' != plant_type and 'fruit' in str(self.filepath) else False
         self.init_params = None
         self.resolution = None
         self.frame = -1
